@@ -99,19 +99,25 @@ resource "azurerm_network_interface_security_group_association" "dc01" {
 
 # VM
 resource "azurerm_windows_virtual_machine" "dc01" {
-  name                = "SRV-DC-S01"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  size                = var.vm_size
-  admin_username      = var.admin_username
-  admin_password      = var.admin_password
-  zone                = "1"
-  secure_boot_enabled = true
-  vtpm_enabled        = true
+  name                              = "SRV-DC-S01"
+  resource_group_name               = azurerm_resource_group.rg.name
+  location                          = azurerm_resource_group.rg.location
+  size                              = var.vm_size
+  admin_username                    = var.admin_username
+  admin_password                    = var.admin_password
+  zone                              = "1"
+  secure_boot_enabled               = true
+  vtpm_enabled                      = true
+  vm_agent_platform_updates_enabled = true  # ← añade esto
 
   network_interface_ids = [
     azurerm_network_interface.dc01_nic.id
   ]
+
+  additional_capabilities {
+    hibernation_enabled = false  # ← añade este bloque
+    ultra_ssd_enabled   = false
+  }
 
   os_disk {
     caching              = "ReadWrite"
@@ -125,7 +131,6 @@ resource "azurerm_windows_virtual_machine" "dc01" {
     version   = "latest"
   }
 }
-
 # ─── IMPORTS ───────────────────────────────────────────
 # Adoptar infraestructura existente creada manualmente.
 # Ejecutar una sola vez — después Terraform gestiona todo.
