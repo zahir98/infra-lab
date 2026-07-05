@@ -6,7 +6,15 @@ terraform {
       version = "~> 3.0"
     }
   }
+backend "azurerm" {
+    resource_group_name  = "rg-infra-lab"
+    storage_account_name = "tfstatesolvetec"
+    container_name       = "tfstate"
+    key                  = "infra-lab.terraform.tfstate"
+  }
+
 }
+
 
 provider "azurerm" {
   features {}
@@ -17,6 +25,10 @@ resource "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
   location = var.location
 }
+resource "azurerm_resource_group" "rg2" {
+  name     = var.resource_group_name_2
+  location = var.location
+}
 
 # VNet
 resource "azurerm_virtual_network" "vnet" {
@@ -25,6 +37,8 @@ resource "azurerm_virtual_network" "vnet" {
   location            = azurerm_resource_group.rg.location
   address_space       = ["10.10.0.0/16"]
 }
+
+
 
 # Subnet AD
 resource "azurerm_subnet" "subnet_ad" {
@@ -131,6 +145,8 @@ resource "azurerm_windows_virtual_machine" "dc01" {
     version   = "latest"
   }
 }
+
+/*
 # ─── IMPORTS ───────────────────────────────────────────
 # Adoptar infraestructura existente creada manualmente.
 # Ejecutar una sola vez — después Terraform gestiona todo.
@@ -194,3 +210,5 @@ import {
   to = azurerm_windows_virtual_machine.dc01
   id = "/subscriptions/6af2326c-cf06-4a5e-82f2-6b550956defb/resourceGroups/rg-infra-lab/providers/Microsoft.Compute/virtualMachines/SRV-DC-S01"
 }
+
+*/

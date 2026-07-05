@@ -3,7 +3,11 @@ variable "resource_group_name" {
   type        = string
   default     = "rg-infra-lab"
 }
-
+variable "resource_group_name_2" {
+  description = "Nombre del Resource Group"
+  type        = string
+  default     = "rg-Guest-lab"
+}
 variable "location" {
   description = "Región de Azure"
   type        = string
@@ -15,6 +19,7 @@ variable "vnet_name" {
   type        = string
   default     = "vnet-infra-lab"
 }
+
 
 variable "vm_size" {
   description = "Tamaño de la VM"
