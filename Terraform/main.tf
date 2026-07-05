@@ -103,6 +103,17 @@ resource "azurerm_network_security_group" "dc01_nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+   security_rule {
+    name                       = "WinRM"
+    priority                   = 1010
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "5985"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 }
 
 # Asociar NSG a NIC
@@ -145,7 +156,17 @@ resource "azurerm_windows_virtual_machine" "dc01" {
     version   = "latest"
   }
 }
+resource "azurerm_virtual_machine_extension" "dc01_winrm" {
+  name                 = "winrm-setup"
+  virtual_machine_id   = azurerm_windows_virtual_machine.dc01.id
+  publisher            = "Microsoft.Compute"
+  type                 = "CustomScriptExtension"
+  type_handler_version = "1.10"
 
+  settings = jsonencode({
+    commandToExecute = "powershell -ExecutionPolicy Unrestricted -Command \"winrm quickconfig -q; winrm set winrm/config/service/auth '@{Basic=true}'; winrm set winrm/config/service '@{AllowUnencrypted=true}'; New-NetFirewallRule -Name WinRM-HTTP -DisplayName 'WinRM HTTP' -Protocol TCP -LocalPort 5985 -Action Allow\""
+  })
+}
 /*
 # ─── IMPORTS ───────────────────────────────────────────
 # Adoptar infraestructura existente creada manualmente.
